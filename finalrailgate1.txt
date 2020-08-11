@@ -1,0 +1,239 @@
+module autorailinfi(ir2,ir4,stepout1,stepout2,clk,control,display);
+input ir2,ir4,clk;
+output [3:0]stepout1,stepout2,control;
+output [7:0]display;
+integer temp,temp1,stepcount1,stepcount2;
+reg [3:0]stepout1,stepout2,control;
+reg buz,dclk,mclk,reset,flag,dir,sel,e;
+reg [7:0]display;
+reg [2:0]flag1,flag2;
+
+initial
+begin
+stepout1=4'b1000;
+stepout2=4'b1000;
+temp=0;
+temp1=0;
+dclk=1'b0;
+mclk=1'b0;
+stepcount1=0;
+stepcount2=0;
+dir=0;
+sel=0;
+flag1=2'b00;
+flag2=2'b00;
+reset=0;
+flag=0;
+end
+
+always @(posedge clk)
+begin
+temp=temp+1;
+temp1=temp1+1;
+if (temp==20000)
+begin
+  dclk=~dclk;
+  temp=0;
+end
+if(temp1==2000)
+begin
+  mclk=~mclk;
+  temp1=0;
+end
+end
+
+/*always@(ir2,ir4)
+begin
+if(ir2==1)
+begin
+dir=1;
+sel=0;
+end
+if(ir4==1)
+begin
+sel=1;
+dir=0;
+end
+end*/
+
+/*always @(posedge dclk)
+begin
+   if(reset==1)
+	  begin
+	    stepout=4'b1000;
+		 stepcount1=0;
+		 end
+     else if(dir==1)
+     begin
+       stepcount1=stepcount1+1;
+       if(stepcount1<=50)
+       begin
+       stepout={stepout[2:0],stepout[3]};
+		 end
+		 else
+		   begin
+			reset=1;
+			end
+	  end*/
+	 /* if(flag==1)
+	  begin
+	    stepout=4'b1000;
+		 stepcount2=0;
+		 end
+	  else if(sel==1)
+	    begin
+		 
+		  stepcount2=stepcount2+1;
+        if(stepcount2<=50)
+		  begin
+        stepout={stepout[0],stepout[3:1]};
+		  end
+		  else
+		  begin
+		  flag=1;
+		  end
+		end*/
+		 
+//end
+always @(posedge dclk)
+begin
+  if(reset==1)
+	  begin
+	    stepout1=4'b1000;
+		 stepout2=4'b1000;
+		 stepcount1=0;
+		 end
+  else if(ir2==1)
+  begin
+    if(ir4==0)
+	  begin
+	   flag=0;
+	    stepcount1=stepcount1+1;
+       if(stepcount1<=50)
+       begin
+       stepout1={stepout1[2:0],stepout1[3]};
+		 stepout2={stepout2[0],stepout2[3:1]};
+		 end
+		 else
+		   begin
+			reset=1;
+			end
+	  end
+	end
+	if(flag==1)
+	  begin
+	    stepout1=4'b1000;
+		 stepout2=4'b1000;
+		 stepcount2=0;
+		 end
+    else if(ir2==0)
+      begin
+      if(ir4==1)
+	    begin
+		 reset=0;
+	    stepcount2=stepcount2+1;
+       if(stepcount2<=50)
+       begin
+       stepout1={stepout1[0],stepout1[3:1]};
+		 stepout2={stepout2[2:0],stepout2[3]};
+		 end
+		 else
+		   begin
+			flag=1;
+			end
+	  end
+	end
+end
+
+	  
+  
+
+always @(posedge mclk)
+begin
+if(ir2==1&ir4==0)
+begin
+if (flag1==2'b00)
+begin
+control= 4'b0111;
+case({ir2,ir4})
+2'b10:display=8'b11001110;
+endcase
+flag1=2'b01;
+end
+
+else if(flag1==2'b01)
+begin
+control=4'b1011;
+case({ir2,ir4})
+2'b10:display=8'b11111100;
+endcase
+flag1=2'b10;
+end
+
+else if(flag1==2'b10)
+begin
+control=4'b1101;
+case({ir2,ir4})
+2'b10:display=8'b00011110;
+endcase
+flag1=2'b11;
+end
+
+else if(flag1==2'b11)
+begin
+control=4'b1110;
+case({ir2,ir4})
+2'b10:display=8'b10110110;
+endcase
+flag1=2'b00;
+end
+end
+
+else if(ir4==1&ir2==0)
+begin
+if(flag2==2'b00)
+begin
+control=4'b0111;
+case({ir2,ir4})
+2'b01:display=8'b11111100;
+endcase
+flag2=2'b01;
+end
+
+else if(flag2==2'b01)
+begin
+control=4'b1011;
+case({ir2,ir4})
+2'b01:display=8'b10111100;
+endcase
+flag2=2'b00;
+end
+end
+end
+endmodule
+dsd
+
+
+net "clk" loc="p55";
+net "ir2" loc="p115";
+net "ir4" loc="p116";
+net "display[0]" loc="p24";
+net "display[1]" loc="p22";
+net "display[2]" loc="p21";
+net "display[3]" loc="p17";
+net "display[4]" loc="p15";
+net "display[5]" loc="p14";
+net "display[6]" loc="p12";
+net "display[7]" loc="p1";
+net "control[0]" loc="p26";
+net "control[1]" loc="p27";
+net "control[2]" loc="p29";
+net "control[3]" loc="p30";
+net "stepout1[0]" loc="p6";
+net "stepout1[1]" loc="p5";
+net "stepout1[2]" loc="p2";
+net "stepout1[3]" loc="p38";
+net "stepout2[0]" loc="p101";
+net "stepout2[1]" loc="p102";
+net "stepout2[2]" loc="p105";
+net "stepout2[3]" loc="p111";
